@@ -591,7 +591,7 @@ echo "App key"</string>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string></string>
+	<string>See https://github.com/KnVerey/alfred-datadog-dashes for usage and setup info.</string>
 	<key>uidata</key>
 	<dict>
 		<key>03B85BD7-5860-4E00-BB83-EF9F2A6F2003</key>
@@ -728,7 +728,7 @@ echo "App key"</string>
 		<string>rubypath</string>
 	</array>
 	<key>version</key>
-	<string></string>
+	<string>1.0.0</string>
 	<key>webaddress</key>
 	<string>https://github.com/KnVerey/alfred-datadog-dashes</string>
 </dict>
