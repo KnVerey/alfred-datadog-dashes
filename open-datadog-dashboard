@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+require 'json'
+require 'net/http'
+require 'optparse'
+
+def alfred_error(title, subtitle)
+  alfred_results = [{
+    "title" => title,
+    "subtitle" => subtitle,
+    "valid" => false
+  }]
+  alfred_results = { "items" => alfred_results }.to_json
+end
+
+def request_dashes
+  uri = URI("https://app.datadoghq.com/api/v1/dash?api_key=#{@api_key}&application_key=#{@app_key}")
+  response = nil
+  Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |https|
+    request = Net::HTTP::Get.new(uri)
+    response = https.request(request)
+  end
+
+  case response.code.to_i
+  when 200..399
+    JSON.parse(response.body)
+  else
+    raise "DD request failed (#{response.code}: #{response.body})"
+  end
+end
+
+def get_dashes_as_alfred_results
+  data = request_dashes
+
+  data['dashes'].map do |dash|
+    dash_id = dash['resource'].sub('/api/v1/', '')
+    {
+      "uid" => dash_id,
+      "title" => dash['title'],
+      "subtitle" => dash['description'],
+      "arg" => "https://app.datadoghq.com/#{dash_id}",
+      "autocomplete" => dash['title']
+    }
+  end
+rescue StandardError => e
+  puts alfred_error("Failed to fetch dashes", e.to_s)
+  exit 1
+end
+
+def validate_required_ivar(varname)
+  value = instance_variable_get("@#{varname}")
+  if !value || value.empty?
+    puts alfred_error("No #{varname.tr('_-', ' ')} provided", "Please run :auth-dd to fix this")
+    exit 1
+  end
+end
+
+OptionParser.new do |opts|
+  opts.on("--app_key=APP_KEY") do |app_key|
+    @app_key = app_key
+  end
+  opts.on("--api_key=API_KEY") do |api_key|
+    @api_key = api_key
+  end
+end.parse!
+
+validate_required_ivar("app_key")
+validate_required_ivar("api_key")
+
+alfred_results = { "items" => get_dashes_as_alfred_results }.to_json
+puts alfred_results
