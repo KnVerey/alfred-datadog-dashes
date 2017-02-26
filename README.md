@@ -15,6 +15,8 @@ Press shift+enter to copy the dash URL to your clipboard.
 
 **1. Install the workflow**
 
+You can download the workflow from the [releases page](https://github.com/KnVerey/alfred-datadog-dashes/releases).
+
 Please note that this workflow requires Alfred3. It will not work with Alfred2 or lower.
 
 **2. Datadog credentials**
