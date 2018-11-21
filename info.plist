@@ -244,6 +244,10 @@
 			<dict>
 				<key>alfredfiltersresults</key>
 				<true/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
@@ -268,7 +272,7 @@ fi
 app_key=$(security find-generic-password -a $USER -s dd-app-key -w)
 api_key=$(security find-generic-password -a $USER -s dd-api-key -w)
 
-./open-datadog-dashboard --app_key=$app_key --api_key=$api_key</string>
+./open-datadog-dashboard --app_key=$app_key --api_key=$api_key --custom_domain="${custom_domain}"</string>
 				<key>scriptargtype</key>
 				<integer>0</integer>
 				<key>scriptfile</key>
@@ -351,6 +355,8 @@ api_key=$(security find-generic-password -a $USER -s dd-api-key -w)
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
 				<key>argumenttype</key>
 				<integer>2</integer>
 				<key>fixedorder</key>
@@ -720,11 +726,14 @@ echo "App key"</string>
 	</dict>
 	<key>variables</key>
 	<dict>
+		<key>custom_domain</key>
+		<string></string>
 		<key>rubypath</key>
-		<string>/opt/rubies/2.3.3/bin</string>
+		<string></string>
 	</dict>
 	<key>variablesdontexport</key>
 	<array>
+		<string>custom_domain</string>
 		<string>rubypath</string>
 	</array>
 	<key>version</key>

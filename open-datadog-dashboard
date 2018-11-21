@@ -3,6 +3,14 @@ require 'json'
 require 'net/http'
 require 'optparse'
 
+def domain
+  if @custom_domain.nil? || @custom_domain.empty?
+    "app.datadoghq.com"
+  else
+    @custom_domain
+  end
+end
+
 def alfred_error(title, subtitle)
   alfred_results = [{
     "title" => title,
@@ -12,8 +20,8 @@ def alfred_error(title, subtitle)
   alfred_results = { "items" => alfred_results }.to_json
 end
 
-def request_dashes
-  uri = URI("https://app.datadoghq.com/api/v1/dash?api_key=#{@api_key}&application_key=#{@app_key}")
+def datadog_request(path)
+  uri = URI("https://#{domain}/#{path}?api_key=#{@api_key}&application_key=#{@app_key}")
   response = nil
   Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |https|
     request = Net::HTTP::Get.new(uri)
@@ -28,16 +36,24 @@ def request_dashes
   end
 end
 
-def get_dashes_as_alfred_results
-  data = request_dashes
+def request_dashes
+  datadog_request("api/v1/dash")["dashes"]
+end
 
-  data['dashes'].map do |dash|
+def request_screenboards
+  datadog_request("api/v1/screen")["screenboards"]
+end
+
+def get_dashes_as_alfred_results
+  data = request_dashes + request_screenboards
+
+  data.map do |dash|
     dash_id = dash['resource'].sub('/api/v1/', '')
     {
       "uid" => dash_id,
       "title" => dash['title'],
-      "subtitle" => dash['description'],
-      "arg" => "https://app.datadoghq.com/#{dash_id}",
+      "subtitle" => "#{dash['description']}",
+      "arg" => "https://#{domain}/#{dash_id}",
       "autocomplete" => dash['title']
     }
   end
@@ -55,6 +71,9 @@ def validate_required_ivar(varname)
 end
 
 OptionParser.new do |opts|
+  opts.on("--custom_domain=DOMAIN") do |domain|
+    @custom_domain = domain
+  end
   opts.on("--app_key=APP_KEY") do |app_key|
     @app_key = app_key
   end
